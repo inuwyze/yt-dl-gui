@@ -1,0 +1,7 @@
+129 - AAC (?)	48 Kbps,
+140 - AAC (LC)	128 Kbps,
+249 - Opus	(VBR) ~50 Kbps,
+250 - Opus	(VBR) ~70 Kbps,
+251 - Opus	(VBR) ~160 Kbps,
+256 - AAC(HE v1) 192Kbps (surround sound),
+258 - AAC(HE LC) 384Kbps (surround sound)
