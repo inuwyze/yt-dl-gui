@@ -7,7 +7,8 @@ export default new Vuex.Store({
   state: {
     destination_folder:'C:\\Users\\paullhungdim\\Videos\\youtube',
     preferences:[
-      {name:'resolution',list:[
+      {name:'resolution',
+      list:[
         "4320p",
         "2160p",
         "1440p",
@@ -16,9 +17,10 @@ export default new Vuex.Store({
         "480p",
         "360p",
         "240p",
-        "144p"
-        ]},
-      {name:'video_format',list:["mp4",'webm']},
+        "144p"],
+        pref:''
+      },
+      {name:'video_format',list:["mp4",'webm'],pref:''},
       {name:'video_codec',list:[
         'AV1 HFR',
         'AV1',
@@ -27,7 +29,8 @@ export default new Vuex.Store({
         'VP9',
         'H.264 HFR',
         'H.264'
-        ]},
+        ],
+        pref:''},
       {name:'audio_codecs',list:[ 
         'AAC 48 Kbps',
         'AAC 128 Kbps',
@@ -35,7 +38,8 @@ export default new Vuex.Store({
         'Opus ~70 Kbps',
         'Opus ~160 Kbps',
         'AAC 192Kbps',
-        'AAC 384Kbps',]},
+        'AAC 384Kbps',],
+        pref:''},
       ]
   },
   mutations: {

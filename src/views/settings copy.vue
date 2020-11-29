@@ -8,25 +8,45 @@
       
       
         <v-card
-        :height="this.$vuetify.breakpoint.sm ? '100%' :'90%'"
-        :width="this.$vuetify.breakpoint.sm ? '100%' :'90%'"
-        class=" pl-10 pr-16">
+        height="100%"
+        width="100%"
+        class="pl-10 pr-10">
         <div
         class="text-h3 text-center mt-3 mb-6">
           SETTINGS
         </div>
+        <v-row
+        v-for="(x,i) in preferences"
+        :key="i">
+          <v-col cols='12' md='3'
+          class="centered"
+          >
+            {{x.name}}
+          </v-col>
+          <v-col cols='12' md='9'>
+         <draggable v-model="x.list" >
+            <v-btn 
+            rounded
+            
+            class="ml-1 mt-1 primary"
+            v-for="(items,i) in x.list" :key="i" >
+              {{ items }}
+            </v-btn>
+          </draggable>        
+          </v-col>
+        </v-row>
+
+
        
         <v-row>
           <v-col cols='12' md='3'
-          class="centered attr">
+          class="centered">
             destination folder
           </v-col>
-          <v-col cols='12' md='9'
-          class="pl-16">
-            <v-row 
-            class="centered">
+          <v-col cols='12' md='9'>
+            <v-row >
             <div
-           class="destination_field ma-0">{{destination_folder}}</div>
+           class="destination_field">{{destination_folder}}</div>
             <v-btn
             @click="openDialog"
             class="ml-3">
@@ -35,38 +55,6 @@
             </v-row>
           </v-col>
         </v-row>
-        <v-row
-        v-for="(x,i) in preferences"
-        :key="i">
-          <v-col cols='12' md='3'
-          class="centered attr"
-          >
-            {{x.name}}
-          </v-col>
-          <v-col cols='12' md='9'
-          class="pl-16">
-         <!-- <draggable v-model="x.list" >
-            <v-btn 
-            rounded
-            
-            class="ml-1 mt-1 primary"
-            v-for="(items,i) in x.list" :key="i" >
-              {{ items }}
-            </v-btn>
-          </draggable>         -->
-          <v-select
-          v-model="x.pref"
-          outlined
-          dense
-          hide-details
-          :items="x.list"
-          
-          
-        ></v-select>
-          </v-col>
-        </v-row>
-
-
         
 
 
@@ -78,14 +66,16 @@
 
 <script>
 const { dialog } = require("electron").remote;
-
+import draggable from "vuedraggable";
 import { mapState } from 'vuex'
 export default {
   computed: {
     ...mapState(['destination_folder','preferences']),
 
   },
-
+ components: {
+    draggable
+  },
   data () {
     return {
     
@@ -112,20 +102,14 @@ export default {
   box-shadow: none;
 }
 
-.attr{
-  border-right: 2px solid lightgrey;
-}
 .centered{
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 .destination_field{
   /* border:red 1px solid; */
-  border: solid 1px grey;
-  border-radius: 6px;
-  width:85%;
+  width:80%;
   padding:6px;
 }
 </style>
