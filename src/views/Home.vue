@@ -12,13 +12,15 @@
      <v-text-field
          ref='url'
          solo
+         class="mr-3"
          autofocus
          append-icon="mdi-link-variant"
          v-model="url"
          placeholder="Type keyword...">
       </v-text-field>
       <v-btn
-      @click="pasteUrl">
+      @click="pasteUrl"
+      class="destination_field_hgt">
         <v-icon>mdi-clipboard</v-icon>
       </v-btn>
       </v-row>
@@ -31,7 +33,6 @@
 
 
       <v-col
-      
       xs='0'
       sm='6'
       
@@ -39,9 +40,8 @@
 
         <v-img
         v-if="videoId"
+        class=" vid_thumbnail"        
         :src='thumbnailImg'
-        max-height="225px"
-        max-width="400px"
         ></v-img>
         
       </v-col>
@@ -52,39 +52,46 @@
       sm='6'
       
        class="d-flex flex-column">
-          
-     
-          <div class="destination_field">
-           
-          {{destination_folder}}
-           
+
+          <div class=" primary--text options_title">
+            Destination folder
+          </div>
+
+          <v-row class="ma-0 ">
+            <div class="destination_field destination_field_hgt">
+              {{destination_folder| dest_filter}} 
+            </div>
           <v-btn
+          class="destination_field_hgt"
           @click="openDialog">
           <v-icon>
             mdi-folder-cog-outline
           </v-icon>
           </v-btn>
-        </div>
-         
+        </v-row>
+
         <div
-        class="ml-2 primary--text">
+        class=" primary--text options_title">
         Resolution
         </div>
         <v-select
-          v-model="vid_res"
+          v-model="download_res"
           solo
           :disabled='!downloadable'
           hide-details
+          :menu-props="{ bottom: true, offsetY: true }"
           :items="available_res"
           label="default"
           
         ></v-select>
-       <div class="ml-2 mt-4 primary--text">
+       <div class=" primary--text options_title">
        Audio
        </div>
         <v-select
-          v-model="vid_aud"
+          v-model="download_aud"
           solo
+          hide-details
+          :menu-props="{ bottom: true, offsetY: true }"
           :disabled='!downloadable'
           :items="available_aud"
           label="default"
@@ -92,7 +99,7 @@
         ></v-select>
         <v-btn
           v-if='downloadable'
-          class="primary ml-4 mr-4 pt-6 pb-6"
+          class="primary mt-8 pt-6 pb-6"
           @click="download">
             download
         </v-btn>
@@ -115,7 +122,7 @@
 {{available_res}}
 
 {{custom}}
-{{vid_res}}
+{{download_res}}
     <v-snackbar
     v-model="alert">
       {{msg}}
@@ -137,8 +144,8 @@ const { dialog } = require("electron").remote;
         downloadProgress:'',
         custom:false,
         formats:[],
-        vid_res:'Default',
-        vid_aud:'Default',
+        download_res:this.$store.state.preferences[0].pref,
+        download_aud:this.$store.state.preferences[1].pref,
         msg:'',
         alert:false,
         downloadable:false,
@@ -147,33 +154,39 @@ const { dialog } = require("electron").remote;
         videoId:'',
         format_code_lst:'',
         res_ids:{
-          '4320p' : ['402','571','272','138'],
-          '2160p' : ['401','337','315','313','266'],
-          '1440p' : ['400','336','308','271','264'],
-          '1080p' : ['399','335','303','248','299','137'],
-          '720p' :  ['398','334','302','247','298','136'],
-          '480p' :  ['397','333','244','135'],
-          '360p' :  ['396','332','243','134'],
-          '240p' :  ['395','331','242','133'],
-          '144p' :  ['394','330','278','160'],
+          '4320p' :   ['402','571','272','138'],
+          '2160p' :   ['401','337','315','313','266'],
+          '1440p' :   ['400','336','308','271','264'],
+          '1080p' :   ['399','335','303','248','299','137'],
+          '720p'  :   ['398','334','302','247','298','136'],
+          '480p'  :   ['397','333','244','135'],
+          '360p'  :   ['396','332','243','134'],
+          '240p'  :   ['395','331','242','133'],
+          '144p'  :   ['394','330','278','160'],
         },
         aud_formats:{
-          'AAC 48 Kbps' :'129' ,
-          'AAC 128 Kbps' :'140' ,
-          'Opus ~50 Kbps' :'249' ,
-          'Opus ~70 Kbps' :'250' ,
-          'Opus ~160 Kbps' :'251' ,
-          'AAC 192Kbps (surround sound)' :'256' ,
-          'AAC 384Kbps (surround sound)' :'258' ,
+          'zenith'                        :'bestvideo' ,
+          'nadir'                         :'bestaudio' ,
+          'AAC 48 Kbps'                   :'129' ,
+          'AAC 128 Kbps'                  :'140' ,
+          'Opus ~50 Kbps'                 :'249' ,
+          'Opus ~70 Kbps'                 :'250' ,
+          'Opus ~160 Kbps'                :'251' ,
+          'AAC 192Kbps (surround sound)'  :'256' ,
+          'AAC 384Kbps (surround sound)'  :'258' ,
         },
-        available_res:['Default'],
-        available_aud:['Default'],
+        available_res:[],
+        available_aud:[],
       }
     },
     computed: {
       
       thumbnailImg(){
-        return 'https://img.youtube.com/vi/'+this.videoId+'/hqdefault.jpg'
+
+        // console.log('https://img.youtube.com/vi/'+this.videoId+'/hqdefault.jpg')
+        // console.log('https://www.youtube.com/watch?v=cY1B3R4BWc4')
+        
+        return 'http://i3.ytimg.com/vi/'+this.videoId+'/maxresdefault.jpg'
       }
     },
     methods: {
@@ -232,39 +245,34 @@ const { dialog } = require("electron").remote;
 
 		download(){
 
-      if(this.vid_res=='default')
-			{
-        // var r = /\d+/;
-        // this.vid_res=this.vid_res.match(r)[0]
-        
-        //get default download config
-        // this.download_script()
-       
-
-        alert('default')
-      }
-
-      else{
         alert( 'custom')
         this.downloadRes_script()
-      }
+
 
      },
 
      downloadRes_script(){
-      
       //  regex to get just the numeric value of height
-      var r = /\d+/;
-      let hgt=this.vid_res.match(r)[0]
-      let aud='bestaudio'
+      
+      let vid=this.download_res=='nadir'?'worstvideo':'bestvideo'
+      let aud=this.aud_formats[this.download_aud]
+      let res=''
 
-      // video format script with best audio
-      if (this.aud_format!='default'){
-        aud=this.aud_formats[this.vid_aud]
-        console.log()
-        console.log(aud)
+      // format script with custom audio 
+      
+      // console.log(this.download_aud)
+      // console.log(aud)
+      
+      // format script with custom resolution
+      if (/\d/.test(this.download_res)){
+        //regex to get just the int
+        var r = /\d+/;
+        res='[height='+this.download_res.match(r)[0]+']'
+        vid+=res
+        // console.log(res)
+        
       }
-      let scrpt='bestvideo[height='+hgt+']+'+aud
+      let scrpt=vid+'+'+aud
       console.log(scrpt)
       
 
@@ -308,7 +316,7 @@ const { dialog } = require("electron").remote;
           this.formats=formats.split(re).slice(2,-1)
           
           this.get_format_id()
-          //generate vid_res list
+          //generate download_res list
 
           console.log(`stdersr: ${data}`)
         });
@@ -344,12 +352,22 @@ const { dialog } = require("electron").remote;
           this.msg=data;
           this.downloadable=true
           this.formats=formats.split(re).slice(2,-1)
-          // this.vid_res=this.formats[this.formats.length]
+          // this.download_res=this.formats[this.formats.length]
           this.get_format_id()
-          //generate vid_res list
+          //generate download_res list
 
           console.log(`stdersr: ${data}`)
         });
+      }
+    },
+    filters: {
+      dest_filter(val){
+        console.log(val)
+        console.log(val.length)
+        let l=val.length
+        if(l>49)
+          return val.substring(0,3)+'...'+val.substring(l-35,l)
+        return val
       }
     },
     watch: {
@@ -357,8 +375,8 @@ const { dialog } = require("electron").remote;
       val=val.trim()
       var p = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
       if(val.match(p)){
-          this.available_res=['Default']
-          this.available_aud=['Default']
+          this.available_res=['zenith','nadir']
+          this.available_aud=['zenith','nadir']
           this.youtube_parser(val)
           this.get_formatList(val)
       }
@@ -370,18 +388,72 @@ const { dialog } = require("electron").remote;
   }
 </script>
 <style >
+.options_title{
+  margin-left:5px ;
+  margin-top:15px ;
+}
 
-.destination_field{
+.vid_thumbnail{
+  /* max-width: 80%; */
+  box-shadow: 0px 12px 8px -8px rgba(0, 0, 0, .24), 
+  0px 8px 8px 0px rgba(0, 0, 0, .24),
+  0px 4px 20px 5px rgba(0, 0, 0, .22);
+}
+
+
+::-webkit-scrollbar {
+  
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: coral;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background:lightblue;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: blue;
+}
+
+
+.destination_field_row{
   /* border:red 1px solid; */
-  width:100%;
+  
   display: flex;
   justify-content: space-between;
   padding:6px;
   margin-bottom: 20px;
 }
+.destination_field {
+  /* border:red 1px solid; */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* direction: rtl; */
+  text-overflow: ellipsis; 
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 
+  0px 2px 2px 0px rgba(0, 0, 0, .14),
+  0px 1px 5px 0px rgba(0, 0, 0, .12);
+  border-radius: 6px;
+  flex: 1 1 auto;
+  margin-right: 10px  !important;
+  padding:6px;
+}
 .centered{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* width */
+.destination_field_hgt{
+  min-height: 48px;
+
 }
 </style>

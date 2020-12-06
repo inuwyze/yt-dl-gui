@@ -55,9 +55,16 @@ export default {
   }
 };
 </script>
+<style  >
+html{ overflow: auto !important; }
+
+
+</style>
 <style  scoped>
+
 .destination_btn{
   position: fixed;
   right: 5px;
 }
+
 </style>

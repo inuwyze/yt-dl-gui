@@ -24,14 +24,15 @@
           <v-col cols='12' md='9'
           class="pl-16">
             <v-row 
-            class="centered">
+            class="centered ma-0">
             <div
-           class="destination_field ma-0">{{destination_folder}}</div>
+           class="destination_field destination_field_hgt ma-0">{{destination_folder}}</div>
             <v-btn
             @click="openDialog"
-            class="ml-3">
+            class="ml-3 destination_field_settings">
             <v-icon>
-              mdi-folder</v-icon></v-btn>
+              mdi-folder
+            </v-icon></v-btn>
             </v-row>
           </v-col>
         </v-row>
@@ -56,8 +57,8 @@
           </draggable>         -->
           <v-select
           v-model="x.pref"
-          outlined
-          dense
+          solo
+          
           hide-details
           :items="x.list"
           
@@ -67,8 +68,9 @@
         </v-row>
 
 
-        
-
+        <!-- {{preferences}} -->
+        {{n}}
+        {{l}}
 
         </v-card>
       
@@ -85,10 +87,22 @@ export default {
     ...mapState(['destination_folder','preferences']),
 
   },
+  watch: {
+    preferences: {
+        handler(n) { 
+          n.forEach((x)=>{
+            localStorage.setItem(x.LcStr_item,x.pref)
+            // console.log(x.pref)
+          })
+        },
+        deep: true
+    }
+  },
 
   data () {
     return {
-    
+      n:'',
+      l:'',
     }
   },
   methods: {
@@ -98,6 +112,7 @@ export default {
           properties: ['openDirectory']
         })
         this.$store.state.destination_folder=dir.filePaths[0]
+        localStorage.setItem('destination_folder',dir.filePaths[0])
         // this.destination_folder=dir.filePaths[0]
       },
   }
@@ -121,11 +136,5 @@ export default {
   align-items: center;
   
 }
-.destination_field{
-  /* border:red 1px solid; */
-  border: solid 1px grey;
-  border-radius: 6px;
-  width:85%;
-  padding:6px;
-}
+
 </style>
